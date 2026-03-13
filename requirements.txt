@@ -1,0 +1,33 @@
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# LLM & Agent Orchestration
+langchain==0.3.14
+langchain-mistralai==0.2.4
+langgraph==0.2.60
+
+# Embeddings
+sentence-transformers==3.3.1
+
+# Vector Store
+chromadb==0.5.23
+
+# Database
+motor==3.7.0
+pymongo==4.10.1
+
+# PDF Processing
+pypdf==5.1.0
+
+# Configuration
+pydantic==2.10.4
+pydantic-settings==2.7.1
+python-dotenv==1.0.1
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.25.0
+anyio==4.8.0
+httpx==0.28.1

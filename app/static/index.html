@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic Hiring Screener</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#0a0e1a;--bg2:#111827;--card:rgba(17,24,39,.7);--card-h:rgba(30,41,59,.8);
+            --glass:rgba(255,255,255,.03);--input:rgba(255,255,255,.04);
+            --bdr:rgba(255,255,255,.06);--bdr-h:rgba(255,255,255,.12);
+            --t1:#f1f5f9;--t2:#94a3b8;--t3:#64748b;
+            --acc:#6366f1;--acc-l:#818cf8;--acc-g:rgba(99,102,241,.15);
+            --grn:#10b981;--grn-g:rgba(16,185,129,.15);
+            --amb:#f59e0b;--amb-g:rgba(245,158,11,.15);
+            --red:#ef4444;--red-g:rgba(239,68,68,.15);
+            --cyn:#06b6d4;--cyn-g:rgba(6,182,212,.15);
+            --r:16px;--rs:10px;--rx:6px;
+        }
+        body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;line-height:1.6;overflow-x:hidden}
+        body::before{content:'';position:fixed;top:-40%;left:-20%;width:80%;height:80%;background:radial-gradient(circle,rgba(99,102,241,.06) 0%,transparent 70%);pointer-events:none;z-index:0}
+        body::after{content:'';position:fixed;bottom:-30%;right:-20%;width:70%;height:70%;background:radial-gradient(circle,rgba(6,182,212,.04) 0%,transparent 70%);pointer-events:none;z-index:0}
+        .app{position:relative;z-index:1}
+
+        /* Header */
+        .header{padding:20px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr);backdrop-filter:blur(20px);background:rgba(10,14,26,.85);position:sticky;top:0;z-index:100}
+        .header-left{display:flex;align-items:center;gap:14px}
+        .logo{width:40px;height:40px;background:linear-gradient(135deg,var(--acc),var(--cyn));border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff;box-shadow:0 0 20px var(--acc-g)}
+        .header-title{font-size:19px;font-weight:700;letter-spacing:-.3px}
+        .header-title span{color:var(--acc-l)}
+        .header-badge{font-size:11px;padding:4px 10px;background:var(--acc-g);color:var(--acc-l);border-radius:20px;font-weight:600;border:1px solid rgba(99,102,241,.2)}
+        .main{max-width:1440px;margin:0 auto;padding:28px 40px}
+
+        /* Stats */
+        .stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+        .stat-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:18px 22px;backdrop-filter:blur(12px);transition:all .3s}
+        .stat-card:hover{border-color:var(--bdr-h);transform:translateY(-2px)}
+        .stat-label{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:6px}
+        .stat-value{font-size:26px;font-weight:700;letter-spacing:-.5px}
+        .sv-acc{color:var(--acc-l)}.sv-grn{color:var(--grn)}.sv-amb{color:var(--amb)}.sv-cyn{color:var(--cyn)}
+
+        /* Tabs */
+        .tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:5px}
+        .tab{flex:1;padding:11px 20px;background:transparent;border:none;border-radius:12px;color:var(--t3);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:8px}
+        .tab:hover{color:var(--t2);background:var(--glass)}
+        .tab.active{background:var(--acc-g);color:var(--acc-l);border:1px solid rgba(99,102,241,.2)}
+        .tab-content{display:none}.tab-content.active{display:block}
+
+        /* Grid */
+        .content-grid{display:grid;grid-template-columns:400px 1fr;gap:22px;align-items:start}
+
+        /* Panel */
+        .panel{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);backdrop-filter:blur(12px);overflow:hidden}
+        .panel-header{padding:18px 22px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+        .panel-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+        .panel-icon{width:8px;height:8px;border-radius:50%}
+        .panel-body{padding:22px}
+
+        /* Form */
+        .form-group{margin-bottom:16px}
+        .form-label{display:block;font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+        .form-input,.form-textarea,.form-select{width:100%;background:var(--input);border:1px solid var(--bdr);border-radius:var(--rs);padding:11px 14px;color:var(--t1);font-family:inherit;font-size:13px;transition:all .2s;outline:none}
+        .form-input:focus,.form-textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-g)}
+        .form-textarea{resize:vertical;min-height:72px}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .form-hint{font-size:10px;color:var(--t3);margin-top:4px}
+
+        /* Templates */
+        .templates{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+        .template-btn{padding:10px 12px;background:var(--glass);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--t2);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;text-align:left}
+        .template-btn:hover,.template-btn.active{border-color:var(--acc);background:var(--acc-g);color:var(--acc-l)}
+        .template-title{font-weight:600;font-size:12px;margin-bottom:2px}
+        .template-sub{font-size:10px;color:var(--t3)}
+
+        /* Buttons */
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 22px;border:none;border-radius:var(--rs);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;outline:none}
+        .btn-primary{width:100%;background:linear-gradient(135deg,var(--acc),#7c3aed);color:#fff;box-shadow:0 4px 16px var(--acc-g)}
+        .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(99,102,241,.3)}
+        .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+        .btn-secondary{background:var(--glass);border:1px solid var(--bdr);color:var(--t2)}
+        .btn-secondary:hover{border-color:var(--acc);color:var(--acc-l)}
+        .btn-green{width:100%;background:linear-gradient(135deg,var(--grn),#059669);color:#fff;box-shadow:0 4px 16px var(--grn-g)}
+        .btn-green:hover{transform:translateY(-1px)}.btn-green:disabled{opacity:.5;cursor:not-allowed;transform:none}
+        .btn-red{background:var(--red-g);border:1px solid rgba(239,68,68,.2);color:var(--red);padding:6px 12px;font-size:11px}
+        .btn-red:hover{background:var(--red);color:#fff}
+        .btn-sm{padding:7px 14px;font-size:12px}
+
+        /* Cards */
+        .candidate-card{background:var(--glass);border:1px solid var(--bdr);border-radius:var(--r);padding:18px 22px;transition:all .3s;position:relative;overflow:hidden}
+        .candidate-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:4px 0 0 4px}
+        .candidate-card.shortlisted::before{background:var(--grn)}
+        .candidate-card.review::before{background:var(--amb)}
+        .candidate-card.rejected::before{background:var(--red)}
+        .candidate-card:hover{border-color:var(--bdr-h);background:var(--card-h);transform:translateX(3px)}
+        .card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+        .card-rank{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;margin-right:12px;flex-shrink:0}
+        .rank-1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a1a1a}
+        .rank-2{background:linear-gradient(135deg,#94a3b8,#64748b);color:#fff}
+        .rank-3{background:linear-gradient(135deg,#b45309,#92400e);color:#fff}
+        .rank-other{background:var(--card);color:var(--t2);border:1px solid var(--bdr)}
+        .card-name{font-size:15px;font-weight:600;margin-bottom:1px}
+        .card-id{font-size:10px;color:var(--t3);font-family:'SF Mono',monospace}
+        .card-score-badge{font-size:20px;font-weight:800;letter-spacing:-.5px}
+        .card-score-badge.high{color:var(--grn)}.card-score-badge.medium{color:var(--amb)}.card-score-badge.low{color:var(--red)}
+        .card-scores{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+        .score-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+        .score-bar-track{height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;margin-bottom:3px}
+        .score-bar-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+        .score-bar-fill.similarity{background:var(--cyn)}.score-bar-fill.llm{background:var(--acc-l)}.score-bar-fill.combined{background:var(--grn)}
+        .score-val{font-size:12px;font-weight:600;color:var(--t2)}
+        .card-skills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+        .skill-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+        .skill-tag.matched{background:var(--grn-g);color:var(--grn);border:1px solid rgba(16,185,129,.2)}
+        .skill-tag.missing{background:var(--red-g);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+        .card-summary{font-size:12px;color:var(--t2);line-height:1.5;padding:10px 12px;background:rgba(0,0,0,.15);border-radius:var(--rx);border-left:2px solid var(--acc)}
+        .card-recommendation{margin-top:10px;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:20px}
+        .rec-shortlisted{background:var(--grn-g);color:var(--grn)}.rec-review{background:var(--amb-g);color:var(--amb)}.rec-rejected{background:var(--red-g);color:var(--red)}
+        .status-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;border-radius:20px}
+        .status-shortlisted{background:var(--grn-g);color:var(--grn)}.status-review{background:var(--amb-g);color:var(--amb)}.status-rejected{background:var(--red-g);color:var(--red)}
+
+        /* Candidate List */
+        .candidate-list-item{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bdr);transition:background .2s}
+        .candidate-list-item:last-child{border-bottom:none}
+        .candidate-list-item:hover{background:var(--glass)}
+        .cl-avatar{width:36px;height:36px;border-radius:10px;background:var(--acc-g);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--acc-l);margin-right:12px;flex-shrink:0}
+        .cl-info{flex:1;min-width:0}
+        .cl-name{font-size:13px;font-weight:600}.cl-email{font-size:11px;color:var(--t3)}
+        .cl-actions{display:flex;gap:8px;align-items:center}
+
+        /* Upload Zone */
+        .upload-zone{border:2px dashed var(--bdr);border-radius:var(--r);padding:32px;text-align:center;cursor:pointer;transition:all .3s;margin-bottom:16px}
+        .upload-zone:hover,.upload-zone.dragover{border-color:var(--acc);background:var(--acc-g)}
+        .upload-icon{font-size:32px;margin-bottom:8px;opacity:.5}
+        .upload-text{font-size:13px;color:var(--t2);font-weight:500}
+        .upload-hint{font-size:11px;color:var(--t3);margin-top:4px}
+
+        /* Parsed Preview */
+        .parsed-preview{background:var(--glass);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;margin-bottom:16px}
+        .parsed-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+        .parsed-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+        .parsed-text-box{max-height:250px;overflow-y:auto;font-size:11px;color:var(--t2);background:rgba(0,0,0,.2);border-radius:var(--rx);padding:12px;white-space:pre-wrap;line-height:1.5;font-family:'SF Mono',monospace;border:1px solid var(--bdr)}
+
+        /* Alert */
+        .alert{padding:12px 16px;border-radius:var(--rs);font-size:12px;margin-bottom:14px;display:flex;align-items:flex-start;gap:8px}
+        .alert-warn{background:var(--amb-g);border:1px solid rgba(245,158,11,.2);color:var(--amb)}
+        .alert-success{background:var(--grn-g);border:1px solid rgba(16,185,129,.2);color:var(--grn)}
+        .alert-icon{font-size:16px;flex-shrink:0}
+
+        /* Divider */
+        .divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--t3);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--bdr)}
+
+        /* Pipeline */
+        .pipeline-viz{display:flex;align-items:center;justify-content:center;gap:0;padding:14px 0 0;margin-bottom:4px}
+        .pipeline-node{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--t3);padding:5px 10px;border-radius:20px;border:1px solid var(--bdr);transition:all .3s}
+        .pipeline-node.active{color:var(--acc-l);border-color:rgba(99,102,241,.3);background:var(--acc-g)}
+        .pipeline-node.done{color:var(--grn);border-color:rgba(16,185,129,.3);background:var(--grn-g)}
+        .pipeline-arrow{color:var(--t3);font-size:14px;margin:0 5px}.pipeline-arrow.done{color:var(--grn)}
+
+        /* Loading */
+        .loading-overlay{display:none;position:fixed;inset:0;background:rgba(10,14,26,.85);backdrop-filter:blur(8px);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:20px}
+        .loading-overlay.active{display:flex}
+        .spinner{width:44px;height:44px;border-radius:50%;border:3px solid var(--bdr);border-top-color:var(--acc);animation:spin .8s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .loading-text{color:var(--t2);font-size:14px;font-weight:500}
+        .loading-sub{color:var(--t3);font-size:12px;margin-top:-12px}
+
+        /* Toast */
+        .toast{position:fixed;bottom:24px;right:24px;z-index:2000;padding:14px 20px;border-radius:var(--rs);font-size:13px;font-weight:500;transform:translateY(120%);transition:transform .3s;max-width:400px}
+        .toast.show{transform:translateY(0)}.toast.success{background:var(--grn);color:#fff}.toast.error{background:var(--red);color:#fff}
+
+        /* Empty */
+        .empty-state{text-align:center;padding:50px 20px;color:var(--t3)}
+        .empty-icon{font-size:40px;margin-bottom:12px;opacity:.4}
+        .empty-title{font-size:16px;font-weight:600;color:var(--t2);margin-bottom:6px}
+        .empty-desc{font-size:13px;line-height:1.6}
+
+        /* Modal */
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,14,26,.85);backdrop-filter:blur(8px);z-index:1500;align-items:center;justify-content:center;padding:20px}
+        .modal-overlay.active{display:flex}
+        .modal-content{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);width:100%;max-width:800px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+        .modal-header{padding:18px 24px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+        .modal-title{font-size:16px;font-weight:600}
+        .modal-close{background:transparent;border:none;color:var(--t2);cursor:pointer;font-size:24px;line-height:1}
+        .modal-close:hover{color:#fff}
+        .modal-body{padding:24px;overflow-y:auto;font-size:12px;line-height:1.6;color:var(--t2);white-space:pre-wrap;font-family:'SF Mono',monospace;background:rgba(0,0,0,.2)}
+
+        /* Animations */
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+        .fade-in-up{animation:fadeInUp .4s ease forwards;opacity:0}
+        .results-list{display:flex;flex-direction:column;gap:10px}
+
+        ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bdr-h);border-radius:3px}
+        @media(max-width:1100px){.content-grid{grid-template-columns:1fr}.stats-bar{grid-template-columns:repeat(2,1fr)}.main{padding:20px}.header{padding:14px 20px}.templates{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Processing...</div>
+        <div class="loading-sub" id="loadingSub"></div>
+    </div>
+    <div class="toast" id="toast"></div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="resumeModal">
+        <div class="modal-content fade-in-up">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Resume Preview</div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modalBody">Loading...</div>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">AI</div>
+            <div class="header-title">Agentic <span>Hiring Screener</span></div>
+        </div>
+        <div class="header-badge">LangGraph + Mistral + MPNet</div>
+    </header>
+
+    <main class="main">
+        <div class="stats-bar">
+            <div class="stat-card"><div class="stat-label">Candidates</div><div class="stat-value sv-acc" id="statCandidates">—</div></div>
+            <div class="stat-card"><div class="stat-label">Indexed</div><div class="stat-value sv-cyn" id="statIndexed">—</div></div>
+            <div class="stat-card"><div class="stat-label">Last Screened</div><div class="stat-value sv-grn" id="statScreened">—</div></div>
+            <div class="stat-card"><div class="stat-label">Screening Time</div><div class="stat-value sv-amb" id="statTime">—</div></div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="screen"><span>🔍</span> Screen</button>
+            <button class="tab" data-tab="apply"><span>📄</span> Apply / Upload Resume</button>
+            <button class="tab" data-tab="manage"><span>👥</span> Manage Candidates</button>
+        </div>
+
+        <!-- TAB: Screen -->
+        <div class="tab-content active" id="tab-screen">
+            <div class="content-grid">
+                <div class="panel" style="position:sticky;top:80px">
+                    <div class="panel-header">
+                        <div class="panel-title"><div class="panel-icon" style="background:var(--acc);box-shadow:0 0 8px var(--acc-g)"></div>Job Description</div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="form-label">Quick Templates</label>
+                            <div class="templates" id="templates"></div>
+                        </div>
+                        <form id="screeningForm">
+                            <div class="form-group"><label class="form-label">Job Title</label><input class="form-input" id="jobTitle" placeholder="e.g. Senior ML Engineer" required></div>
+                            <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="jobDesc" rows="4" placeholder="Describe the role..." required></textarea></div>
+                            <div class="form-group"><label class="form-label">Required Skills</label><input class="form-input" id="requiredSkills" placeholder="Python, PyTorch, NLP" required><div class="form-hint">Comma-separated</div></div>
+                            <div class="form-group"><label class="form-label">Preferred Skills</label><input class="form-input" id="preferredSkills" placeholder="LangChain, Kubernetes"><div class="form-hint">Optional, comma-separated</div></div>
+                            <div class="form-row">
+                                <div class="form-group"><label class="form-label">Min Experience</label><input class="form-input" id="minExp" type="number" min="0" max="30" value="3"></div>
+                                <div class="form-group"><label class="form-label">Top K</label><input class="form-input" id="topK" type="number" min="1" max="50" value="5"></div>
+                            </div>
+                            <div class="form-group"><label class="form-label">Min Score Threshold</label><input class="form-input" id="threshold" type="number" min="0" max="1" step=".05" value="0.3"></div>
+                            <div class="pipeline-viz">
+                                <div class="pipeline-node" id="pNode1">◎ Retrieve</div>
+                                <div class="pipeline-arrow">→</div>
+                                <div class="pipeline-node" id="pNode2">◎ Evaluate</div>
+                                <div class="pipeline-arrow">→</div>
+                                <div class="pipeline-node" id="pNode3">◎ Rank</div>
+                            </div>
+                            <button class="btn btn-primary" type="submit" id="screenBtn">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                                Run Screening Pipeline
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-header" style="display:flex;justify-content:space-between">
+                        <div class="panel-title"><div class="panel-icon" style="background:var(--grn);box-shadow:0 0 8px var(--grn-g)"></div>Screening Results</div>
+                        <div class="results-meta" id="resultsMeta" style="font-size:12px;color:var(--t3)"></div>
+                    </div>
+                    <div class="panel-body" id="resultsBody">
+                        <div class="empty-state"><div class="empty-icon">🎯</div><div class="empty-title">Ready to Screen</div><div class="empty-desc">Select a JD template or write your own,<br>then click "Run Screening Pipeline".</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Apply / Upload -->
+        <div class="tab-content" id="tab-apply">
+            <div style="max-width:750px;margin:0 auto">
+                <!-- Step 1: Upload -->
+                <div id="applyStep1">
+                    <div class="panel" style="margin-bottom:20px">
+                        <div class="panel-header">
+                            <div class="panel-title"><div class="panel-icon" style="background:var(--grn);box-shadow:0 0 8px var(--grn-g)"></div>Step 1: Upload Resume</div>
+                            <div style="font-size:11px;color:var(--t3)">PDF → auto-parse like an ATS</div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="upload-zone" id="uploadZone">
+                                <div class="upload-icon">📎</div>
+                                <div class="upload-text">Drop a PDF resume here or click to browse</div>
+                                <div class="upload-hint">Name, email, and full text are auto-extracted — just like a real ATS</div>
+                                <input type="file" id="pdfInput" accept=".pdf" style="display:none">
+                            </div>
+                            <div id="uploadedFileName" style="font-size:12px;color:var(--acc-l);margin-bottom:12px;display:none"></div>
+                            <button class="btn btn-green" id="parseBtn" disabled>
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                                Parse Resume
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Review Parsed (hidden initially) -->
+                <div id="applyStep2" style="display:none">
+                    <div class="panel" style="margin-bottom:20px">
+                        <div class="panel-header">
+                            <div class="panel-title"><div class="panel-icon" style="background:var(--acc);box-shadow:0 0 8px var(--acc-g)"></div>Step 2: Review Parsed Resume</div>
+                            <button class="btn btn-secondary btn-sm" onclick="resetApply()">← Upload Different</button>
+                        </div>
+                        <div class="panel-body">
+                            <div id="duplicateAlert"></div>
+                            <div class="parsed-fields">
+                                <div class="form-group" style="margin-bottom:0">
+                                    <label class="form-label">Detected Name</label>
+                                    <input class="form-input" id="parsedName">
+                                </div>
+                                <div class="form-group" style="margin-bottom:0">
+                                    <label class="form-label">Detected Email</label>
+                                    <input class="form-input" id="parsedEmail">
+                                </div>
+                            </div>
+                            <div style="display:flex;gap:12px;margin-bottom:10px;font-size:11px;color:var(--t3)">
+                                <span id="parsedMeta"></span>
+                            </div>
+                            <label class="form-label">Extracted Resume Text</label>
+                            <div class="parsed-text-box" id="parsedTextBox"></div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:12px">
+                        <button class="btn btn-green" id="confirmIndexBtn" style="flex:1">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                            Confirm & Index Candidate
+                        </button>
+                    </div>
+                    <div id="indexResult" style="display:none;margin-top:14px"></div>
+                </div>
+
+                <div class="divider">or paste manually</div>
+
+                <div class="panel">
+                    <div class="panel-header"><div class="panel-title"><div class="panel-icon" style="background:var(--acc);box-shadow:0 0 8px var(--acc-g)"></div>Paste Resume Text</div></div>
+                    <div class="panel-body">
+                        <form id="textResumeForm">
+                            <div class="form-group"><label class="form-label">Candidate Name</label><input class="form-input" id="uploadName" placeholder="Full name" required></div>
+                            <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="uploadEmail" placeholder="email@example.com" type="email"></div>
+                            <div class="form-group"><label class="form-label">Resume Text</label><textarea class="form-textarea" id="uploadResumeText" rows="10" placeholder="Paste full resume..." required style="min-height:180px;font-size:12px"></textarea></div>
+                            <button class="btn btn-green" type="submit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Index Resume</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Manage -->
+        <div class="tab-content" id="tab-manage">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><div class="panel-icon" style="background:var(--cyn);box-shadow:0 0 8px var(--cyn-g)"></div>Candidate Database</div>
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <input type="text" id="candidateSearchInput" class="form-input" placeholder="Search by name or email..." style="width:250px; padding:6px 12px; font-size:13px; height:auto;">
+                        <button class="btn btn-secondary btn-sm" onclick="loadCandidates()">↻ Refresh</button>
+                    </div>
+                </div>
+                <div id="candidateListBody">
+                    <div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">Loading...</div></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+const API='';
+
+/* ── JD Templates ────────────────────────────────────────────────────────── */
+const JD_TEMPLATES=[
+    {label:"ML Engineer",sub:"NLP & Production ML",title:"Senior Machine Learning Engineer",description:"Design, build, and deploy production machine learning systems for NLP applications. Lead the development of scalable ML pipelines, from data preprocessing and model training to inference optimization and monitoring. Collaborate with cross-functional teams to integrate ML solutions into products serving millions of users. Establish MLOps best practices including CI/CD for models, experiment tracking, and automated retraining.",required:"Python, PyTorch, NLP, MLOps, Docker",preferred:"LangChain, Kubernetes, Apache Spark, TensorFlow, AWS SageMaker",exp:4},
+    {label:"LLM/AI Engineer",sub:"RAG & Agents",title:"AI Engineer — LLM & RAG Systems",description:"Build and deploy LLM-powered applications including retrieval-augmented generation (RAG) systems, conversational agents, and multi-agent workflows. Design vector search architectures, implement prompt engineering strategies, fine-tune open-source models, and optimize inference performance.",required:"Python, LangChain, LLMs, RAG, Vector Databases",preferred:"PyTorch, Hugging Face, ChromaDB, Pinecone, FastAPI, Kubernetes",exp:3},
+    {label:"Full Stack Dev",sub:"React & Node.js",title:"Senior Full Stack Developer",description:"Build and maintain scalable web applications from frontend to backend. Develop responsive React/TypeScript UIs, design RESTful and GraphQL APIs, manage database schemas, and implement CI/CD pipelines. Ship features end-to-end in an agile environment.",required:"JavaScript, TypeScript, React, Node.js, PostgreSQL",preferred:"Next.js, GraphQL, Docker, AWS, MongoDB, Redis",exp:4},
+    {label:"Data Scientist",sub:"Analytics & ML",title:"Data Scientist",description:"Drive business decisions through advanced analytics, predictive modeling, and experimentation. Build ML models for customer segmentation, churn prediction, and recommendation systems. Design and analyze A/B tests with statistical rigor.",required:"Python, SQL, Statistics, Machine Learning, scikit-learn",preferred:"Tableau, A/B Testing, XGBoost, PySpark, Deep Learning",exp:2},
+    {label:"DevOps",sub:"Cloud & K8s",title:"DevOps / Platform Engineer",description:"Design and manage cloud infrastructure, CI/CD pipelines, and container orchestration platforms. Implement infrastructure-as-code, build monitoring and alerting systems, and ensure 99.9%+ uptime.",required:"Kubernetes, Docker, Terraform, CI/CD, AWS or GCP",preferred:"ArgoCD, Prometheus, Grafana, Python, Go, Helm",exp:3},
+    {label:"CV Engineer",sub:"Vision & DL",title:"Computer Vision Engineer",description:"Develop production computer vision systems for object detection, image segmentation, and visual understanding. Optimize deep learning models for real-time inference on edge and cloud.",required:"Python, PyTorch, Computer Vision, OpenCV, Deep Learning",preferred:"TensorRT, YOLO, Detectron2, AWS SageMaker, Docker, CUDA",exp:3},
+];
+
+function initTemplates(){
+    const c=document.getElementById('templates');
+    c.innerHTML=JD_TEMPLATES.map((t,i)=>`<button type="button" class="template-btn" data-idx="${i}"><div class="template-title">${t.label}</div><div class="template-sub">${t.sub}</div></button>`).join('');
+    c.addEventListener('click',e=>{const b=e.target.closest('.template-btn');if(!b)return;const t=JD_TEMPLATES[b.dataset.idx];document.getElementById('jobTitle').value=t.title;document.getElementById('jobDesc').value=t.description;document.getElementById('requiredSkills').value=t.required;document.getElementById('preferredSkills').value=t.preferred;document.getElementById('minExp').value=t.exp;c.querySelectorAll('.template-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
+}
+
+/* ── Tabs ────────────────────────────────────────────────────────────────── */
+document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+        if(tab.dataset.tab==='manage') loadCandidates();
+    });
+});
+
+/* ── Stats ───────────────────────────────────────────────────────────────── */
+async function loadStats(){
+    try{const r=await fetch(`${API}/api/v1/stats`);const d=await r.json();
+    document.getElementById('statCandidates').textContent=d.total_candidates_in_db;
+    document.getElementById('statIndexed').textContent=d.vector_store?.total_documents??'—';}catch(e){}
+}
+
+/* ── Toast ───────────────────────────────────────────────────────────────── */
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),3500)}
+
+/* ── Pipeline ────────────────────────────────────────────────────────────── */
+function setPipelineStep(s){
+    const n=['Retrieve','Evaluate','Rank'],nodes=[document.getElementById('pNode1'),document.getElementById('pNode2'),document.getElementById('pNode3')],ar=document.querySelectorAll('.pipeline-arrow');
+    nodes.forEach((nd,i)=>{nd.classList.remove('active','done');if(i<s){nd.classList.add('done');nd.textContent='✓ '+n[i]}else if(i===s){nd.classList.add('active');nd.textContent='◉ '+n[i]}else{nd.textContent='◎ '+n[i]}});
+    ar.forEach((a,i)=>a.classList.toggle('done',i<s));
+}
+
+/* ── Screening ───────────────────────────────────────────────────────────── */
+document.getElementById('screeningForm').addEventListener('submit',async e=>{
+    e.preventDefault();const btn=document.getElementById('screenBtn');btn.disabled=true;
+    const ov=document.getElementById('loadingOverlay');ov.classList.add('active');
+    setPipelineStep(0);document.getElementById('loadingText').textContent='Retrieving similar resumes...';document.getElementById('loadingSub').textContent='Encoding JD with MPNet → querying ChromaDB';
+    const t1=setTimeout(()=>{setPipelineStep(1);document.getElementById('loadingText').textContent='Evaluating with Mistral...';document.getElementById('loadingSub').textContent='Analyzing skills, experience, and fit'},3000);
+    const t2=setTimeout(()=>{setPipelineStep(2);document.getElementById('loadingText').textContent='Ranking results...';document.getElementById('loadingSub').textContent='Similarity (40%) + LLM (60%)'},15000);
+    const pL=v=>v.split(',').map(s=>s.trim()).filter(Boolean);
+    try{
+        const r=await fetch(`${API}/api/v1/screen`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({job:{title:document.getElementById('jobTitle').value,description:document.getElementById('jobDesc').value,required_skills:pL(document.getElementById('requiredSkills').value),preferred_skills:pL(document.getElementById('preferredSkills').value),min_experience_years:parseInt(document.getElementById('minExp').value)||0},top_k:parseInt(document.getElementById('topK').value)||5,threshold:parseFloat(document.getElementById('threshold').value)||.3})});
+        const d=await r.json();clearTimeout(t1);clearTimeout(t2);
+        if(!r.ok) throw new Error(d.detail||`Server returned ${r.status}`);
+        setPipelineStep(3);document.getElementById('statScreened').textContent=d.total_candidates_screened;document.getElementById('statTime').textContent=d.screening_time_seconds+'s';
+        renderResults(d);showToast(`Screened ${d.total_candidates_screened} candidates in ${d.screening_time_seconds}s`);
+    }catch(err){clearTimeout(t1);clearTimeout(t2);setPipelineStep(-1);
+        document.getElementById('resultsBody').innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Screening Failed</div><div class="empty-desc">${err.message}<br><br><span style="font-size:11px;color:var(--t3)">Mistral may be temporarily overloaded. Try again in a few seconds.</span></div></div>`;
+        showToast('Screening failed — try again','error');
+    }finally{ov.classList.remove('active');btn.disabled=false}
+});
+
+/* ── Render Results ──────────────────────────────────────────────────────── */
+function renderResults(d){
+    document.getElementById('resultsMeta').innerHTML=`<strong>${d.shortlisted.length}</strong> shortlisted of <strong>${d.total_candidates_screened}</strong> · ${d.screening_time_seconds}s`;
+    const b=document.getElementById('resultsBody');
+    if(!d.shortlisted?.length){b.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No Matches</div><div class="empty-desc">Try lowering the threshold or broadening skills.</div></div>';return}
+    b.innerHTML='<div class="results-list">'+d.shortlisted.map((c,i)=>renderCard(c,i)).join('')+'</div>';
+}
+function renderCard(c,i){
+    const st=c.status||'review',sc=c.combined_score>=.8?'high':c.combined_score>=.5?'medium':'low',rc=st==='shortlisted'?'rec-shortlisted':st==='rejected'?'rec-rejected':'rec-review',rkc=i<3?`rank-${i+1}`:'rank-other';
+    const m=(c.skills_matched||[]).map(s=>`<span class="skill-tag matched">✓ ${s}</span>`).join('');
+    const ms=(c.skills_missing||[]).map(s=>`<span class="skill-tag missing">✗ ${s}</span>`).join('');
+    return`<div class="candidate-card ${st} fade-in-up" style="animation-delay:${i*.07}s">
+        <div class="card-top"><div style="display:flex;align-items:center"><div class="card-rank ${rkc}">${i+1}</div><div><div class="card-name">${c.candidate_name}</div><div class="card-id">${c.candidate_id}</div></div></div>
+        <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+            <div><span class="card-score-badge ${sc}">${(c.combined_score*100).toFixed(1)}%</span></div>
+            <div class="status-badge status-${st}">${st==='shortlisted'?'✓':st==='rejected'?'✗':'◎'} ${st}</div>
+            <button class="btn btn-secondary btn-sm" onclick="viewCandidate('${c.candidate_id}')" style="padding:4px 8px;font-size:11px;margin-top:2px">👁 View Resume</button>
+        </div></div>
+        <div class="card-scores">
+            <div><div class="score-label">Similarity</div><div class="score-bar-track"><div class="score-bar-fill similarity" style="width:${c.similarity_score*100}%"></div></div><div class="score-val">${(c.similarity_score*100).toFixed(1)}%</div></div>
+            <div><div class="score-label">LLM Score</div><div class="score-bar-track"><div class="score-bar-fill llm" style="width:${c.llm_score*100}%"></div></div><div class="score-val">${(c.llm_score*100).toFixed(1)}%</div></div>
+            <div><div class="score-label">Combined</div><div class="score-bar-track"><div class="score-bar-fill combined" style="width:${c.combined_score*100}%"></div></div><div class="score-val">${(c.combined_score*100).toFixed(1)}%</div></div>
+        </div>
+        <div class="card-skills">${m}${ms}</div>
+        ${c.experience_summary?`<div class="card-summary">${c.experience_summary}</div>`:''}
+        <div class="card-recommendation ${rc}">${c.recommendation||st}</div></div>`;
+}
+
+/* ── Apply Flow ──────────────────────────────────────────────────────────── */
+let parsedData=null;
+const uploadZone=document.getElementById('uploadZone'),pdfInput=document.getElementById('pdfInput'),parseBtn=document.getElementById('parseBtn');
+let selectedFile=null;
+
+uploadZone.addEventListener('click',()=>pdfInput.click());
+uploadZone.addEventListener('dragover',e=>{e.preventDefault();uploadZone.classList.add('dragover')});
+uploadZone.addEventListener('dragleave',()=>uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop',e=>{e.preventDefault();uploadZone.classList.remove('dragover');if(e.dataTransfer.files[0]?.type==='application/pdf'){selectedFile=e.dataTransfer.files[0];showFile()}});
+pdfInput.addEventListener('change',()=>{if(pdfInput.files[0]){selectedFile=pdfInput.files[0];showFile()}});
+
+function showFile(){document.getElementById('uploadedFileName').textContent='📎 '+selectedFile.name;document.getElementById('uploadedFileName').style.display='block';parseBtn.disabled=false}
+
+function resetApply(){
+    document.getElementById('applyStep1').style.display='block';
+    document.getElementById('applyStep2').style.display='none';
+    document.getElementById('indexResult').style.display='none';
+    selectedFile=null;parsedData=null;pdfInput.value='';
+    document.getElementById('uploadedFileName').style.display='none';
+    parseBtn.disabled=true;
+}
+
+// Step 1 → Parse
+parseBtn.addEventListener('click',async()=>{
+    if(!selectedFile)return;parseBtn.disabled=true;
+    const ov=document.getElementById('loadingOverlay');ov.classList.add('active');
+    document.getElementById('loadingText').textContent='Parsing PDF...';
+    document.getElementById('loadingSub').textContent='Extracting text → detecting name & email';
+    const fd=new FormData();fd.append('file',selectedFile);
+    try{
+        const r=await fetch(`${API}/api/v1/resumes/parse-pdf`,{method:'POST',body:fd});
+        const d=await r.json();
+        if(!r.ok) throw new Error(d.detail||'Parse failed');
+        parsedData=d;
+        // Show step 2
+        document.getElementById('applyStep1').style.display='none';
+        document.getElementById('applyStep2').style.display='block';
+        document.getElementById('parsedName').value=d.candidate_name;
+        document.getElementById('parsedEmail').value=d.email||'';
+        document.getElementById('parsedMeta').textContent=`📄 ${d.filename} · ${d.pages} page(s) · ${d.char_count.toLocaleString()} characters`;
+        document.getElementById('parsedTextBox').textContent=d.parsed_text;
+        // Duplicate?
+        const da=document.getElementById('duplicateAlert');
+        if(d.duplicate){
+            da.innerHTML=`<div class="alert alert-warn"><span class="alert-icon">⚠️</span><div><strong>Duplicate Detected!</strong> A candidate with email <strong>${d.email}</strong> already exists (ID: ${d.existing_candidate.id}, Name: ${d.existing_candidate.candidate_name}). Indexing will create a new record — the previous one will remain.</div></div>`;
+        } else { da.innerHTML=''; }
+    }catch(err){showToast('Parse failed: '+err.message,'error');parseBtn.disabled=false}
+    finally{ov.classList.remove('active')}
+});
+
+// Step 2 → Confirm & Index
+document.getElementById('confirmIndexBtn').addEventListener('click',async()=>{
+    if(!parsedData)return;
+    const btn=document.getElementById('confirmIndexBtn');btn.disabled=true;
+    try{
+        const r=await fetch(`${API}/api/v1/resumes/index`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+            candidate_name:document.getElementById('parsedName').value,
+            email:document.getElementById('parsedEmail').value,
+            resume_text:parsedData.parsed_text,
+            source_filename:parsedData.filename,
+        })});
+        const d=await r.json();
+        if(!r.ok) throw new Error(d.detail||'Index failed');
+        const ir=document.getElementById('indexResult');
+        ir.innerHTML=`<div class="alert alert-success"><span class="alert-icon">✅</span><div><strong>${d.candidate_name}</strong> indexed successfully!<br><span style="font-size:11px;color:var(--t2)">ID: ${d.candidate_id}</span></div></div>`;
+        ir.style.display='block';
+        showToast(`✓ ${d.candidate_name} indexed!`);
+        loadStats();
+        
+        // Auto-reset back to Step 1 after 2 seconds so they can upload another
+        setTimeout(() => {
+            resetApply();
+            btn.disabled=false;
+        }, 2000);
+        
+    }catch(err){showToast('Index failed: '+err.message,'error');btn.disabled=false}
+});
+
+/* ── Text Resume Upload ──────────────────────────────────────────────────── */
+document.getElementById('textResumeForm').addEventListener('submit',async e=>{
+    e.preventDefault();const btn=e.target.querySelector('button[type="submit"]');btn.disabled=true;
+    try{
+        const r=await fetch(`${API}/api/v1/resumes/index`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({candidate_name:document.getElementById('uploadName').value,email:document.getElementById('uploadEmail').value,resume_text:document.getElementById('uploadResumeText').value})});
+        const d=await r.json();
+        if(r.ok){showToast(`✓ ${d.candidate_name} indexed!`);document.getElementById('uploadName').value='';document.getElementById('uploadEmail').value='';document.getElementById('uploadResumeText').value='';loadStats()}
+        else showToast('Failed: '+(d.detail||'Unknown'),'error');
+    }catch(err){showToast('Error: '+err.message,'error')}finally{btn.disabled=false}
+});
+
+/* ── Candidates List ─────────────────────────────────────────────────────── */
+let allCandidatesData = [];
+function renderCandidateList(candidates){
+    const b=document.getElementById('candidateListBody');
+    if(!candidates?.length){
+        b.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No Candidates</div><div class="empty-desc">Upload resumes or adjust search to get started.</div></div>';
+        return;
+    }
+    b.innerHTML=candidates.map(c=>`
+        <div class="candidate-list-item" id="cli-${c.id}">
+            <div style="display:flex;align-items:center;flex:1;min-width:0">
+                <div class="cl-avatar">${(c.candidate_name||'?')[0]}</div>
+                <div class="cl-info"><div class="cl-name">${c.candidate_name||'Unknown'}</div><div class="cl-email">${c.email||'—'}</div></div>
+            </div>
+            <div class="cl-actions">
+                <span style="font-size:10px;color:var(--t3);font-family:monospace">${c.id}</span>
+                <button class="btn btn-secondary btn-sm" onclick="viewCandidate('${c.id}')">👁 View Resume</button>
+                <button class="btn btn-red" onclick="deleteCandidate('${c.id}','${(c.candidate_name||'').replace(/'/g,"\\'")}')">✕ Delete</button>
+            </div>
+        </div>`).join('');
+}
+
+async function loadCandidates(){
+    const b=document.getElementById('candidateListBody');
+    try{
+        const r=await fetch(`${API}/api/v1/candidates?limit=1000`);const d=await r.json();
+        allCandidatesData=d.candidates||[];
+        renderCandidateList(allCandidatesData);
+        const searchInput = document.getElementById('candidateSearchInput');
+        if(searchInput) searchInput.value = '';
+    }catch(e){b.innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Error</div></div>'}
+}
+
+document.getElementById('candidateSearchInput')?.addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase();
+    const filtered = allCandidatesData.filter(c => (c.candidate_name||'').toLowerCase().includes(q) || (c.email||'').toLowerCase().includes(q));
+    renderCandidateList(filtered);
+});
+
+async function deleteCandidate(id,name){
+    if(!confirm(`Delete ${name} (${id})? This removes from both the database and search index.`))return;
+    try{
+        const r=await fetch(`${API}/api/v1/candidates/${id}`,{method:'DELETE'});
+        if(r.ok){showToast(`Deleted: ${name}`);document.getElementById('cli-'+id)?.remove();loadStats()}
+        else{const d=await r.json();showToast('Delete failed: '+(d.detail||'Unknown'),'error')}
+    }catch(err){showToast('Error: '+err.message,'error')}
+}
+
+async function viewCandidate(id){
+    const m=document.getElementById('resumeModal'), mt=document.getElementById('modalTitle'), mb=document.getElementById('modalBody');
+    m.classList.add('active'); mt.textContent='Loading...'; mb.textContent='Fetching resume data...';
+    try{
+        const r=await fetch(`${API}/api/v1/candidates/${id}`);
+        if(r.ok){
+            const d=await r.json();
+            mt.textContent=d.candidate_name||'Unknown Candidate';
+            mb.textContent=d.resume_text||'No resume text available.';
+        }else{
+            mt.textContent='Error'; mb.textContent='Failed to load candidate.';
+        }
+    }catch(err){
+        mt.textContent='Error'; mb.textContent=err.message;
+    }
+}
+function closeModal(){document.getElementById('resumeModal').classList.remove('active');}
+
+/* ── Boot ────────────────────────────────────────────────────────────────── */
+initTemplates();loadStats();
+</script>
+</body>
+</html>
