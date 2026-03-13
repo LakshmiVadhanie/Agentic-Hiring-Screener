@@ -1,0 +1,5 @@
+{
+  "code": "not_found",
+  "message": "Bucket with such name does not exist.",
+  "status": 404
+}
